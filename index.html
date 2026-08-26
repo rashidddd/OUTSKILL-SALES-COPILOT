@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outskill Dispatch — AI Sales Copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10161D;
+    --ink-2:#161E27;
+    --panel:#1B242F;
+    --panel-line:#2B3644;
+    --paper:#EDEDE6;
+    --paper-dim:#A7B0BA;
+    --amber:#FFB454;
+    --amber-dim:#8A6A3A;
+    --teal:#4FD1C5;
+    --red:#FF6B6B;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(255,180,84,0.06), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(79,209,197,0.05), transparent 55%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px;}
+
+  /* ---------- Header / hero ---------- */
+  header{
+    border-bottom:1px solid var(--panel-line);
+    padding:28px 0 26px;
+    margin-bottom:36px;
+  }
+  .header-inner{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:6px;
+    background:linear-gradient(135deg,var(--amber),#E8944A);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ink);font-size:15px;
+    flex-shrink:0;
+  }
+  .brand-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;letter-spacing:0.02em;}
+  .brand-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--paper-dim);letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
+  .status-chip{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;
+    color:var(--teal);border:1px solid rgba(79,209,197,0.35);background:rgba(79,209,197,0.06);
+    padding:6px 12px;border-radius:100px;display:flex;align-items:center;gap:7px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);}
+
+  h1.hero{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,4.2vw,42px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 12px;
+    max-width:680px;
+  }
+  .hero-desc{color:var(--paper-dim);max-width:560px;font-size:15px;margin:0;}
+
+  /* ---------- Panel shell ---------- */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .panel-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--amber);margin:0 0 4px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .panel-label .n{color:var(--paper-dim);}
+  .panel-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;margin:0 0 16px;}
+  .panel-hint{color:var(--paper-dim);font-size:13px;margin:-10px 0 16px;}
+
+  /* ---------- Config panel ---------- */
+  details.config summary{
+    cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;
+  }
+  details.config summary::-webkit-details-marker{display:none;}
+  .summary-row{display:flex;align-items:center;gap:10px;}
+  .caret{transition:transform .2s ease;color:var(--paper-dim);}
+  details[open] .caret{transform:rotate(90deg);}
+  .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+  @media (max-width:640px){.config-grid{grid-template-columns:1fr;}}
+
+  label{display:block;font-size:12px;color:var(--paper-dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace;letter-spacing:0.03em;}
+  input[type=text],input[type=password],textarea,select{
+    width:100%;background:var(--ink-2);border:1px solid var(--panel-line);color:var(--paper);
+    padding:10px 12px;border-radius:7px;font-family:'Inter',sans-serif;font-size:14px;
+    transition:border-color .15s ease;
+  }
+  input::placeholder,textarea::placeholder{color:#5A6472;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--amber);}
+  textarea{resize:vertical;min-height:80px;}
+
+  .key-row{display:flex;gap:8px;}
+  .key-row input{flex:1;}
+  .icon-btn{
+    background:var(--ink-2);border:1px solid var(--panel-line);color:var(--paper-dim);
+    border-radius:7px;padding:0 12px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;
+  }
+  .icon-btn:hover{color:var(--paper);border-color:var(--paper-dim);}
+  .save-note{font-size:11.5px;color:var(--paper-dim);margin-top:8px;}
+
+  /* ---------- Mode toggle ---------- */
+  .mode-toggle{display:flex;gap:10px;margin-top:14px;}
+  .mode-opt{
+    flex:1;border:1px solid var(--panel-line);background:var(--ink-2);border-radius:8px;
+    padding:12px 14px;cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .mode-opt.active{border-color:var(--amber);background:rgba(255,180,84,0.07);}
+  .mode-opt-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:8px;}
+  .mode-opt-title .tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(79,209,197,0.12);color:var(--teal);}
+  .mode-opt.active .tag{background:rgba(255,180,84,0.16);color:var(--amber);}
+  .mode-opt-desc{font-size:12.5px;color:var(--paper-dim);margin-top:5px;line-height:1.4;}
+
+  /* ---------- Form ---------- */
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:640px){.field-grid{grid-template-columns:1fr;}}
+  .field-grid .full{grid-column:1 / -1;}
+
+  .generate-row{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap;}
+  button.primary{
+    background:var(--amber);color:var(--ink);border:none;border-radius:8px;
+    padding:13px 22px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;
+    cursor:pointer;display:flex;align-items:center;gap:9px;transition:transform .1s ease, background .15s ease;
+  }
+  button.primary:hover{background:#FFC170;}
+  button.primary:active{transform:scale(0.98);}
+  button.primary:disabled{background:var(--amber-dim);color:#40372A;cursor:not-allowed;}
+  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(16,22,29,0.3);border-top-color:var(--ink);animation:spin .7s linear infinite;display:none;}
+  button.primary.loading .spinner{display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .gen-hint{color:var(--paper-dim);font-size:12.5px;}
+
+  .error-box{
+    border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.07);color:#FFB3B3;
+    padding:12px 14px;border-radius:8px;font-size:13px;margin-top:16px;display:none;
+  }
+
+  /* ---------- Output ---------- */
+  #output{margin-top:28px;}
+  .output-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .output-head h2{font-family:'Space Grotesk',sans-serif;font-size:16px;margin:0;}
+  .fit-score{
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);
+    border:1px solid rgba(79,209,197,0.35);padding:5px 11px;border-radius:100px;
+  }
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:760px){.card-grid{grid-template-columns:1fr;}}
+  .tx-card{
+    background:var(--panel);border:1px solid var(--panel-line);border-radius:var(--radius);
+    padding:18px 18px 16px;position:relative;overflow:hidden;
+  }
+  .tx-card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--channel-color, var(--amber));
+  }
+  .tx-card.full-span{grid-column:1 / -1;}
+  .tx-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .tx-tag{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;
+    color:var(--channel-color,var(--amber));text-transform:uppercase;
+  }
+  .copy-btn{
+    background:transparent;border:1px solid var(--panel-line);color:var(--paper-dim);
+    font-size:11px;font-family:'JetBrains Mono',monospace;padding:4px 9px;border-radius:6px;cursor:pointer;
+  }
+  .copy-btn:hover{color:var(--paper);border-color:var(--paper-dim);}
+  .copy-btn.copied{color:var(--teal);border-color:rgba(79,209,197,0.4);}
+  .tx-body{font-size:13.5px;color:#DADAD2;white-space:pre-wrap;line-height:1.55;}
+  .tx-body.small{font-size:13px;}
+
+  .empty-state{
+    border:1px dashed var(--panel-line);border-radius:var(--radius);padding:40px 24px;text-align:center;color:var(--paper-dim);
+  }
+  .empty-state .glyph{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--amber-dim);margin-bottom:10px;}
+
+  footer{border-top:1px solid var(--panel-line);margin-top:50px;padding-top:20px;color:var(--paper-dim);font-size:12px;text-align:center;}
+  footer a{color:var(--paper-dim);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="brand">
+        <div class="brand-mark">OS</div>
+        <div>
+          <div class="brand-name">Outskill Dispatch</div>
+          <div class="brand-sub">AI Sales Copilot</div>
+        </div>
+      </div>
+    </div>
+    <div class="status-chip"><span class="dot"></span> Runs entirely in your browser</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h1 class="hero">Feed it a lead. Get every channel of outreach, ready to send.</h1>
+  <p class="hero-desc">One lead in, a full dispatch out — call opening, discovery questions, pitch, email, WhatsApp and LinkedIn drafts, plus objection handling. Bring your own Gemini key; nothing is sent anywhere but Google's API.</p>
+
+  <!-- CONFIG -->
+  <div class="panel">
+    <details class="config">
+      <summary>
+        <div class="summary-row">
+          <span class="caret">▸</span>
+          <span class="panel-title" style="margin:0;">API configuration</span>
+        </div>
+        <span id="config-status" class="mono" style="font-size:11.5px;color:var(--paper-dim);">not connected</span>
+      </summary>
+      <div class="config-grid">
+        <div class="full">
+          <label for="apiKey">Gemini API key</label>
+          <div class="key-row">
+            <input type="password" id="apiKey" placeholder="Paste your key — get one free at aistudio.google.com/apikey">
+            <button class="icon-btn" id="toggleKey" type="button">show</button>
+            <button class="icon-btn" id="saveKey" type="button">save</button>
+          </div>
+          <div class="save-note">Saved only in this browser's local storage. Never hard-coded, never sent to us. <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--teal);">Get a free key →</a></div>
+        </div>
+        <div>
+          <label for="model">Model</label>
+          <select id="model">
+            <option value="gemini-2.5-flash" selected>gemini-2.5-flash (recommended, free tier)</option>
+            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (fastest, cheapest)</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro (highest quality)</option>
+          </select>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- MODE -->
+  <div class="panel">
+    <div class="panel-label"><span class="n">01</span> DISPATCH MODE</div>
+    <p class="panel-hint">Basic mode asks for fewer fields and shorter answers — built to stretch a free-tier quota across many leads.</p>
+    <div class="mode-toggle">
+      <div class="mode-opt active" id="mode-basic" data-mode="basic">
+        <div class="mode-opt-title">Basic <span class="tag">FREE-TIER</span></div>
+        <div class="mode-opt-desc">Call opening, one email draft, objection handling. ~1 short request per lead.</div>
+      </div>
+      <div class="mode-opt" id="mode-full" data-mode="full">
+        <div class="mode-opt-title">Full Kit <span class="tag">DEEP</span></div>
+        <div class="mode-opt-desc">Everything: summary, fit score, pitch, discovery questions, email, WhatsApp, LinkedIn, objections.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEAD FORM -->
+  <div class="panel">
+    <div class="panel-label"><span class="n">02</span> LEAD INTAKE</div>
+    <div class="field-grid">
+      <div>
+        <label for="leadName">Name</label>
+        <input type="text" id="leadName" placeholder="John Smith">
+      </div>
+      <div>
+        <label for="leadRole">Role</label>
+        <input type="text" id="leadRole" placeholder="Sales Director">
+      </div>
+      <div>
+        <label for="leadCompany">Company</label>
+        <input type="text" id="leadCompany" placeholder="Example SaaS">
+      </div>
+      <div>
+        <label for="leadCountry">Country</label>
+        <input type="text" id="leadCountry" placeholder="USA">
+      </div>
+      <div class="full">
+        <label for="leadNotes">Notes — LinkedIn summary, call notes, or pain points</label>
+        <textarea id="leadNotes" placeholder="e.g. 12 years in B2B SaaS, currently only uses ChatGPT for research and emails, wants to automate repetitive sales work..."></textarea>
+      </div>
+      <div class="full">
+        <label for="leadOffer">What you're pitching</label>
+        <input type="text" id="leadOffer" placeholder="Outskill 14-day AI Accelerator">
+      </div>
+    </div>
+
+    <div class="generate-row">
+      <button class="primary" id="generateBtn"><span class="spinner"></span><span id="genLabel">Generate dispatch</span></button>
+      <span class="gen-hint" id="genHint">Basic mode selected — 1 request, kept short.</span>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output">
+    <div class="empty-state" id="emptyState">
+      <div class="glyph">···</div>
+      <div>Fill in a lead and generate — outreach drafts will appear here as transmission cards.</div>
+    </div>
+    <div class="output-head" id="outputHead" style="display:none;">
+      <h2>Dispatch — <span id="outLeadName"></span></h2>
+      <span class="fit-score" id="fitScoreChip" style="display:none;"></span>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <footer>
+    Built for Outskill · Your API key and lead data stay in your browser · <a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank">Gemini free-tier limits ↗</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const apiKeyInput = $('apiKey');
+  const toggleKeyBtn = $('toggleKey');
+  const saveKeyBtn = $('saveKey');
+  const configStatus = $('config-status');
+  const modelSelect = $('model');
+  const generateBtn = $('generateBtn');
+  const genLabel = $('genLabel');
+  const genHint = $('genHint');
+  const errorBox = $('errorBox');
+  const emptyState = $('emptyState');
+  const outputHead = $('outputHead');
+  const outLeadName = $('outLeadName');
+  const fitScoreChip = $('fitScoreChip');
+  const cardGrid = $('cardGrid');
+
+  let mode = 'basic';
+
+  // ---- restore saved key ----
+  const savedKey = localStorage.getItem('outskill_gemini_key');
+  if (savedKey) {
+    apiKeyInput.value = savedKey;
+    configStatus.textContent = 'key loaded from this browser';
+    configStatus.style.color = 'var(--teal)';
+  }
+
+  toggleKeyBtn.addEventListener('click', () => {
+    const isPw = apiKeyInput.type === 'password';
+    apiKeyInput.type = isPw ? 'text' : 'password';
+    toggleKeyBtn.textContent = isPw ? 'hide' : 'show';
+  });
+
+  saveKeyBtn.addEventListener('click', () => {
+    const v = apiKeyInput.value.trim();
+    if (!v) { localStorage.removeItem('outskill_gemini_key'); configStatus.textContent = 'not connected'; configStatus.style.color = 'var(--paper-dim)'; return; }
+    localStorage.setItem('outskill_gemini_key', v);
+    configStatus.textContent = 'key saved to this browser';
+    configStatus.style.color = 'var(--teal)';
+  });
+
+  // ---- mode toggle ----
+  document.querySelectorAll('.mode-opt').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.mode-opt').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      mode = el.dataset.mode;
+      genHint.textContent = mode === 'basic'
+        ? 'Basic mode selected — 1 request, kept short.'
+        : 'Full Kit selected — 1 request, longer response. Uses more of your quota.';
+    });
+  });
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+  function clearError() {
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+  }
+
+  function buildPrompt(lead, mode) {
+    const basicSchema = `{
+  "call_opening": "a natural 2-3 sentence opening line for a cold/warm call",
+  "email_draft": "a short outreach email, include a subject line as the first line prefixed with 'Subject: '",
+  "objection_handling": "the single most likely objection this lead will raise, and a concise response to it"
+}`;
+    const fullSchema = `{
+  "profile_summary": "2-3 sentence summary of who this person is and what they likely need",
+  "fit_score": "a number 0-100 estimating how good a fit this lead is",
+  "call_opening": "a natural 2-3 sentence opening line for a call",
+  "discovery_questions": "3 sharp discovery questions, one per line",
+  "pitch": "a short spoken pitch (4-6 sentences) tailored to this lead's role and pain points",
+  "email_draft": "a full outreach email, first line prefixed with 'Subject: '",
+  "whatsapp_draft": "a short, casual WhatsApp-style message",
+  "linkedin_draft": "a short LinkedIn connection/outreach message",
+  "objections_responses": "2-3 likely objections and a response to each, formatted as plain text with line breaks"
+}`;
+    const schema = mode === 'basic' ? basicSchema : fullSchema;
+    const lengthNote = mode === 'basic'
+      ? 'Keep every field brief — a few sentences at most. Token budget is limited.'
+      : 'Be thorough and specific, but keep each field tight and usable, not padded.';
+
+    return `You are a B2B sales enablement assistant. Given the lead below, generate outreach content.
+
+LEAD
+Name: ${lead.name || 'Unknown'}
+Role: ${lead.role || 'Unknown'}
+Company: ${lead.company || 'Unknown'}
+Country: ${lead.country || 'Unknown'}
+Notes / pain points: ${lead.notes || 'None provided'}
+What we're pitching: ${lead.offer || 'Not specified'}
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching exactly this shape:
+${schema}
+
+${lengthNote} Write in a natural, human sales voice — no corporate filler, no exclamation-point energy.`;
+  }
+
+  async function callGemini(apiKey, model, prompt) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.8,
+        maxOutputTokens: mode === 'basic' ? 500 : 1400,
+        responseMimeType: 'application/json'
+      }
+    };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      let detail = '';
+      try { const j = await res.json(); detail = j?.error?.message || ''; } catch(e) {}
+      if (res.status === 400) throw new Error('The API rejected the request. Check your key is valid. ' + detail);
+      if (res.status === 403) throw new Error('That key was rejected (403). Double-check it was copied correctly and Generative Language API is enabled for it.');
+      if (res.status === 429) throw new Error('Rate limit hit (429) — you\\'ve used up your free-tier quota for now. Wait a bit, or switch to Basic mode / a lighter model.');
+      throw new Error(`Request failed (${res.status}). ${detail}`);
+    }
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+    if (!text) throw new Error('Empty response from the model — try again.');
+    const cleaned = text.trim().replace(/^```json/i, '').replace(/^```/,'').replace(/```$/,'').trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch (e) {
+      throw new Error('Could not parse the model\\'s response as JSON. Try again, or switch models.');
+    }
+  }
+
+  const CHANNELS = {
+    call_opening:        { tag: 'CALL · OPENING',      color: 'var(--amber)' },
+    discovery_questions: { tag: 'CALL · DISCOVERY',    color: 'var(--amber)' },
+    pitch:                { tag: 'CALL · PITCH',        color: 'var(--amber)', span: true },
+    email_draft:          { tag: 'EMAIL',                color: 'var(--teal)', span: true },
+    whatsapp_draft:        { tag: 'WHATSAPP',             color: '#7CD98B' },
+    linkedin_draft:        { tag: 'LINKEDIN',             color: '#6FA8FF' },
+    objection_handling:    { tag: 'OBJECTION HANDLING',   color: '#FF8A65', span: true },
+    objections_responses:  { tag: 'OBJECTIONS & RESPONSES', color: '#FF8A65', span: true }
+  };
+  const LABELS_ORDER_BASIC = ['call_opening','email_draft','objection_handling'];
+  const LABELS_ORDER_FULL = ['call_opening','discovery_questions','pitch','email_draft','whatsapp_draft','linkedin_draft','objections_responses'];
+
+  function renderOutput(lead, result, mode) {
+    cardGrid.innerHTML = '';
+    emptyState.style.display = 'none';
+    outputHead.style.display = 'flex';
+    outLeadName.textContent = lead.name || 'Unnamed lead';
+
+    if (result.fit_score !== undefined) {
+      fitScoreChip.style.display = 'inline-block';
+      fitScoreChip.textContent = `FIT ${result.fit_score}`;
+    } else {
+      fitScoreChip.style.display = 'none';
+    }
+
+    if (result.profile_summary) {
+      const card = document.createElement('div');
+      card.className = 'tx-card full-span';
+      card.style.setProperty('--channel-color', 'var(--paper-dim)');
+      card.innerHTML = `
+        <div class="tx-head">
+          <span class="tx-tag" style="color:var(--paper-dim);">PROFILE SUMMARY</span>
+        </div>
+        <div class="tx-body">${escapeHtml(result.profile_summary)}</div>`;
+      cardGrid.appendChild(card);
+    }
+
+    const order = mode === 'basic' ? LABELS_ORDER_BASIC : LABELS_ORDER_FULL;
+    order.forEach(key => {
+      if (!result[key]) return;
+      const meta = CHANNELS[key];
+      const card = document.createElement('div');
+      card.className = 'tx-card' + (meta.span ? ' full-span' : '');
+      card.style.setProperty('--channel-color', meta.color);
+      card.innerHTML = `
+        <div class="tx-head">
+          <span class="tx-tag">${meta.tag}</span>
+          <button class="copy-btn" type="button">copy</button>
+        </div>
+        <div class="tx-body">${escapeHtml(result[key])}</div>`;
+      const copyBtn = card.querySelector('.copy-btn');
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(result[key]).then(() => {
+          copyBtn.textContent = 'copied';
+          copyBtn.classList.add('copied');
+          setTimeout(() => { copyBtn.textContent = 'copy'; copyBtn.classList.remove('copied'); }, 1500);
+        });
+      });
+      cardGrid.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  generateBtn.addEventListener('click', async () => {
+    clearError();
+    const apiKey = apiKeyInput.value.trim();
+    if (!apiKey) { showError('Paste a Gemini API key above first — it\\'s free at aistudio.google.com/apikey.'); return; }
+
+    const lead = {
+      name: $('leadName').value.trim(),
+      role: $('leadRole').value.trim(),
+      company: $('leadCompany').value.trim(),
+      country: $('leadCountry').value.trim(),
+      notes: $('leadNotes').value.trim(),
+      offer: $('leadOffer').value.trim()
+    };
+    if (!lead.name && !lead.notes) { showError('Add at least a lead name or some notes to work with.'); return; }
+
+    generateBtn.disabled = true;
+    generateBtn.classList.add('loading');
+    genLabel.textContent = 'Dispatching…';
+
+    try {
+      const prompt = buildPrompt(lead, mode);
+      const model = modelSelect.value;
+      const result = await callGemini(apiKey, model, prompt);
+      renderOutput(lead, result, mode);
+    } catch (err) {
+      showError(err.message || 'Something went wrong.');
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.classList.remove('loading');
+      genLabel.textContent = 'Generate dispatch';
+    }
+  });
+})();
+</script>
+</body>
+</html>
